@@ -1,17 +1,18 @@
-product_id,status,original_price,adjusted_price,post_url,date
-botox-bee-venom-wrinkle-cream-in-pakistan-anti-aging-collagen-boosting-moisturizer,posted,230.0,368,,2026-05-01 17:20:31
-botox-bee-venom-wrinkle-cream-in-pakistan-anti-aging-collagen-boosting-moisturizer,posted,230.0,368,,2026-05-01 17:34:31
-test123,posted,1000.0,1600,test_url,2026-05-01 17:37:30
-light-gray-wifi-router-storage-box-wall-mount-shelf-universal-cable-organizer-space-saving-holder-for-modem-set-top-box-smart-devices-home-office-use,posted,432.0,691,https://www.facebook.com/1072285225974537_122093382627309865,2026-05-01 18:21:14
-test123,posted,1000.0,1600,test_url,2026-05-01 18:22:01
-genuine-certified-apple-iphone-handsfree-wired-lightning-earphones-deep-bass-clear-sound-white,posted,1890.0,3024,https://www.facebook.com/1072285225974537_122093384259309865,2026-05-01 18:22:22
-test123,posted,1000.0,1600,test_url,2026-05-01 18:33:57
-anti-slip-fridge-shelf-mat-waterproof-washable-liner-for-kitchen-drawers-cabinets-pink,posted,419.0,670,https://www.facebook.com/1072285225974537_122093392941309865,2026-05-01 18:34:17
-test123,posted,1000.0,1600,test_url,2026-05-02 08:24:40
-miss-rose-liquid-concealer-fair-waterproof-high-coverage-formula-5ml,posted,338.0,541,https://www.facebook.com/None,2026-05-02 08:25:03
-test123,posted,1000.0,1600,test_url,2026-05-04 18:07:44
-miss-green-fit-me-waterproof-mascara-eyeliner-2-in-1-long-lasting-eye-makeup-duo,posted,405.0,648,https://www.facebook.com/105834518183309_1545040714299093,2026-05-04 18:08:10
-test123,posted,1000.0,1600,test_url,2026-05-04 18:11:51
-nano-toothbrush-with-travel-case-ultra-soft-micro-nano-bristles-for-sensitive-gums-adults-kids-pink,posted,176.0,282,https://www.facebook.com/105834518183309_1545044524298712,2026-05-04 18:12:10
-test123,posted,1000.0,1600,test_url,2026-05-04 18:26:24
-7-ft-ring-light-stand-for-photography-video-professional-grade-adjustable-stand,posted,810.0,1296,https://www.facebook.com/105834518183309_1545053230964508,2026-05-04 18:26:44
+product_id,status,original_price,adjusted_price,post_url,date,last_used
+botox-bee-venom-wrinkle-cream-in-pakistan-anti-aging-collagen-boosting-moisturizer,posted,230.0,368.0,,2026-05-01 17:20:31,
+botox-bee-venom-wrinkle-cream-in-pakistan-anti-aging-collagen-boosting-moisturizer,posted,230.0,368.0,,2026-05-01 17:34:31,
+test123,posted,1000.0,1600.0,test_url,2026-05-01 17:37:30,
+light-gray-wifi-router-storage-box-wall-mount-shelf-universal-cable-organizer-space-saving-holder-for-modem-set-top-box-smart-devices-home-office-use,posted,432.0,691.0,https://www.facebook.com/1072285225974537_122093382627309865,2026-05-01 18:21:14,
+test123,posted,1000.0,1600.0,test_url,2026-05-01 18:22:01,
+genuine-certified-apple-iphone-handsfree-wired-lightning-earphones-deep-bass-clear-sound-white,posted,1890.0,3024.0,https://www.facebook.com/1072285225974537_122093384259309865,2026-05-01 18:22:22,
+test123,posted,1000.0,1600.0,test_url,2026-05-01 18:33:57,
+anti-slip-fridge-shelf-mat-waterproof-washable-liner-for-kitchen-drawers-cabinets-pink,posted,419.0,670.0,https://www.facebook.com/1072285225974537_122093392941309865,2026-05-01 18:34:17,
+test123,posted,1000.0,1600.0,test_url,2026-05-02 08:24:40,
+miss-rose-liquid-concealer-fair-waterproof-high-coverage-formula-5ml,posted,338.0,541.0,https://www.facebook.com/None,2026-05-02 08:25:03,
+test123,posted,1000.0,1600.0,test_url,2026-05-04 18:07:44,
+miss-green-fit-me-waterproof-mascara-eyeliner-2-in-1-long-lasting-eye-makeup-duo,posted,405.0,648.0,https://www.facebook.com/105834518183309_1545040714299093,2026-05-04 18:08:10,
+test123,posted,1000.0,1600.0,test_url,2026-05-04 18:11:51,
+nano-toothbrush-with-travel-case-ultra-soft-micro-nano-bristles-for-sensitive-gums-adults-kids-pink,posted,176.0,282.0,https://www.facebook.com/105834518183309_1545044524298712,2026-05-04 18:12:10,
+test123,posted,1000.0,1600.0,test_url,2026-05-04 18:26:24,
+7-ft-ring-light-stand-for-photography-video-professional-grade-adjustable-stand,posted,810.0,1296.0,https://www.facebook.com/105834518183309_1545053230964508,2026-05-04 18:26:44,
+nan,,,,,,2026-05-04 19:39:42.129652
