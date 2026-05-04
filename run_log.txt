@@ -1,2 +1,4 @@
 2026-05-04 19:39:35.226399 - Selected product: nan | nan
 2026-05-04 19:39:42.128086 - Posted successfully: {'id': '1545103030959528', 'post_id': '105834518183309_1545103057626192'}
+2026-05-04 19:55:37.233416 - Selected product: IPL Laser Hair Removal Device  | Permanent Hair Reduction Epilator | Painless Body Hair Remover | 4590.0
+2026-05-04 19:55:42.573711 - Posted successfully: {'id': '1545113727625125', 'post_id': '105834518183309_1545113744291790'}
