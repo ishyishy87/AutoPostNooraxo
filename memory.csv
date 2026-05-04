@@ -1,1 +1,2 @@
-product_id,status,price,post_url,likes,comments,shares,score,date
+product_id,status,price,post_url,likes,comments,shares,score,date,original_price,adjusted_price
+Pe-49-00-00-496,posted,,https://www.facebook.com/1545129657623532,,,,,2026-05-04 20:21:09,945.0,945.0
