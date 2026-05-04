@@ -36,56 +36,56 @@ def mark_run():
         f.write(str(datetime.now().date()))
 
 
-# ---------------- HASHTAGS ENGINE ----------------
-
-HASHTAG_POOL = {
-    "general": ["#Sale", "#Deal", "#Pakistan", "#OnlineShopping", "#HotDeal"],
-    "fashion": ["#Fashion", "#Style", "#Trendy", "#OOTD", "#Wear"],
-    "electronics": ["#Tech", "#Gadgets", "#SmartBuy", "#Electronics", "#Upgrade"],
-}
-
-def generate_hashtags(title):
-    title_lower = str(title).lower()
-
-    if any(x in title_lower for x in ["shirt", "dress", "jeans", "shoe"]):
-        base = HASHTAG_POOL["fashion"]
-    elif any(x in title_lower for x in ["phone", "laptop", "watch", "earbuds"]):
-        base = HASHTAG_POOL["electronics"]
-    else:
-        base = HASHTAG_POOL["general"]
-
-    return " ".join(random.sample(base, k=min(4, len(base))))
-
-
-# ---------------- VIRAL CAPTION ENGINE ----------------
+# ---------------- AI CAPTION ENGINE (V2) ----------------
 
 def generate_caption(title, price):
-    urgency = random.choice([
-        "🔥 LIMITED STOCK ALERT!",
-        "⚡ HOT DEAL TODAY ONLY!",
-        "🚨 FAST SELLING PRODUCT!",
-        "💥 TRENDING NOW!"
-    ])
+    hooks = [
+        "🔥 LIMITED TIME DEAL!",
+        "⚡ HOT SELLING NOW!",
+        "🚨 TRENDING PRODUCT!",
+        "💥 BEST VALUE TODAY!"
+    ]
 
-    hook = random.choice([
-        "Don't miss this deal!",
-        "Grab it before it's gone!",
-        "Best price guaranteed!",
-        "Customer favorite product!"
-    ])
+    emotions = [
+        "Don't miss this offer!",
+        "Everyone is buying this!",
+        "Grab it before stock ends!",
+        "Customer favorite pick!"
+    ]
+
+    cta = [
+        "Order now via inbox 📩",
+        "Message us to buy 💬",
+        "Limited stock available 🚚",
+        "Fast delivery across Pakistan 🚀"
+    ]
 
     return f"""
-{urgency}
+{random.choice(hooks)}
 
 🔥 {title}
 
 💸 Price: {price}
 
-{hook}
-🚚 Cash on Delivery Available
+{random.choice(emotions)}
 
-📩 Order Now via Inbox!
+{random.choice(cta)}
+
+#Sale #Deal #Pakistan #OnlineShopping
 """.strip()
+
+
+# ---------------- HASHTAG ENGINE ----------------
+
+def generate_hashtags(title):
+    base = ["#Sale", "#Deal", "#Pakistan", "#ShopNow", "#HotDeal", "#Trending"]
+
+    if any(x in title.lower() for x in ["shirt", "dress", "jeans"]):
+        base += ["#Fashion", "#Style"]
+    elif any(x in title.lower() for x in ["phone", "laptop", "watch"]):
+        base += ["#Tech", "#Gadget"]
+
+    return " ".join(random.sample(base, 6))
 
 
 # ---------------- IMAGE DOWNLOAD ----------------
@@ -107,7 +107,7 @@ def download_image(url, product_id):
         return filename
 
     except Exception as e:
-        log(f"Image download failed: {url} | {str(e)}")
+        log(f"Image error: {str(e)}")
         return None
 
 
@@ -128,41 +128,70 @@ def post_to_facebook(image_path, caption):
     if res.status_code != 200:
         raise Exception(res.text)
 
-    return res.json()
+    result = res.json()
+    post_id = result.get("id")
+    post_url = f"https://www.facebook.com/{post_id}" if post_id else None
+
+    return result, post_url
 
 
-# ---------------- MEMORY ----------------
+# ---------------- MEMORY SYSTEM V2 ----------------
 
 def load_memory():
     if not os.path.exists(MEMORY_FILE):
-        df = pd.DataFrame(columns=["product_id", "last_used"])
+        df = pd.DataFrame(columns=[
+            "product_id", "status", "original_price",
+            "adjusted_price", "post_url", "date"
+        ])
         df.to_csv(MEMORY_FILE, index=False)
         return df
 
     return pd.read_csv(MEMORY_FILE)
 
 
-def update_memory(pid):
+def update_memory(pid, price, post_url, status="posted"):
     df = load_memory()
-    df = pd.concat([df, pd.DataFrame([{
-        "product_id": str(pid),
-        "last_used": datetime.now()
-    }])], ignore_index=True)
 
+    new_row = {
+        "product_id": str(pid),
+        "status": status,
+        "original_price": price,
+        "adjusted_price": price,
+        "post_url": post_url,
+        "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     df.to_csv(MEMORY_FILE, index=False)
 
 
-# ---------------- FILTER ENGINE ----------------
+# ---------------- SMART FILTER (NO DUPLICATES) ----------------
 
 def get_available(products, memory):
-    memory["last_used"] = pd.to_datetime(memory.get("last_used"), errors="coerce")
-    cutoff = datetime.now() - timedelta(days=COOLDOWN_DAYS)
+    posted = set(memory[memory["status"] == "posted"]["product_id"].astype(str))
+    available = products[~products["SKU"].astype(str).isin(posted)]
+    return available if len(available) > 0 else products
 
-    recent = set(memory[memory["last_used"] > cutoff]["product_id"].astype(str))
 
-    filtered = products[~products["SKU"].astype(str).isin(recent)]
+# ---------------- PRODUCT SCORING (AI v2 CORE) ----------------
 
-    return filtered if len(filtered) > 0 else products
+def score_product(row):
+    score = 0
+
+    price = str(row.get("Price", ""))
+
+    if price and price != "nan":
+        score += 10
+
+    if row.get("Image Src"):
+        score += 5
+
+    title = str(row.get("Title", "")).lower()
+
+    if any(x in title for x in ["new", "hot", "best", "sale"]):
+        score += 5
+
+    return score
 
 
 # ---------------- MAIN ENGINE ----------------
@@ -170,16 +199,22 @@ def get_available(products, memory):
 def main():
     try:
         if already_ran_today():
-            log("Skipped: already ran today")
+            log("Skipped (already run today)")
             return
 
         products = pd.read_csv(PRODUCTS_FILE)
         products.columns = products.columns.str.strip()
 
         memory = load_memory()
+
         available = get_available(products, memory)
 
-        selected = available.sample(1).iloc[0]
+        # ---------------- AI PRODUCT SELECTION ----------------
+
+        available["score"] = available.apply(score_product, axis=1)
+        available = available.sort_values("score", ascending=False)
+
+        selected = available.iloc[0]
 
         title = str(selected.get("Title", "Amazing Product"))
         price = str(selected.get("Price", "Contact for Price"))
@@ -192,7 +227,7 @@ def main():
         if price.lower() == "nan":
             price = "Contact for Price"
 
-        log(f"Selected: {title} | {price}")
+        log(f"Selected AI product: {title} | {price}")
 
         image_path = download_image(image_url, product_id)
 
@@ -204,14 +239,15 @@ def main():
 
         final_caption = f"{caption}\n\n{hashtags}"
 
-        result = post_to_facebook(image_path, final_caption)
+        result, post_url = post_to_facebook(image_path, final_caption)
 
-        log(f"Posted: {result}")
+        log(f"Posted: {post_url}")
 
-        update_memory(product_id)
+        update_memory(product_id, price, post_url)
+
         mark_run()
 
-        print("POSTED SUCCESSFULLY")
+        print("POST SUCCESS")
 
     except Exception as e:
         log(f"ERROR: {str(e)}")
