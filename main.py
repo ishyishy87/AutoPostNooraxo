@@ -8,18 +8,37 @@ import requests
 PRODUCTS_FILE = "products.csv"
 MEMORY_FILE = "memory.csv"
 LOG_FILE = "run_log.txt"
+RUN_LOCK_FILE = "run_lock.txt"
 
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 PAGE_ID = os.getenv("PAGE_ID")
 
 COOLDOWN_DAYS = 7
+POST_LIMIT = 1
 
 
 # ---------------- LOGGING ----------------
 
 def log(msg):
-    with open(LOG_FILE, "a") as f:
+    with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(f"{datetime.now()} - {msg}\n")
+
+
+# ---------------- RUN LOCK ----------------
+
+def already_ran_today():
+    if not os.path.exists(RUN_LOCK_FILE):
+        return False
+
+    with open(RUN_LOCK_FILE, "r") as f:
+        last_run = f.read().strip()
+
+    return last_run == str(datetime.now().date())
+
+
+def mark_run():
+    with open(RUN_LOCK_FILE, "w") as f:
+        f.write(str(datetime.now().date()))
 
 
 # ---------------- FACEBOOK POST ----------------
@@ -37,12 +56,12 @@ def post_to_facebook(image_path, caption):
         response = requests.post(url, files=files, data=data)
 
     if response.status_code != 200:
-        raise Exception(f"Facebook पोस्ट failed: {response.text}")
+        raise Exception(f"Facebook post failed: {response.text}")
 
     return response.json()
 
 
-# ---------------- IMAGE DOWNLOAD (PRO FEATURE) ----------------
+# ---------------- IMAGE DOWNLOAD ----------------
 
 def download_image(url, product_id):
     try:
@@ -89,15 +108,13 @@ def check_secrets():
         raise Exception("Missing required GitHub Secrets")
 
 
-# ---------------- LOAD PRODUCTS (SHOPIFY CSV SAFE) ----------------
+# ---------------- LOAD PRODUCTS ----------------
 
 def load_products():
     if not os.path.exists(PRODUCTS_FILE):
         raise Exception("products.csv not found")
 
     df = pd.read_csv(PRODUCTS_FILE)
-
-    # clean headers (important for your CSV)
     df.columns = df.columns.str.strip()
 
     return df
@@ -132,7 +149,7 @@ def update_memory(product_id):
     df.to_csv(MEMORY_FILE, index=False)
 
 
-# ---------------- SMART FILTER ----------------
+# ---------------- FILTER ----------------
 
 def get_available(products, memory):
     if memory.empty:
@@ -149,17 +166,17 @@ def get_available(products, memory):
         ~products["SKU"].astype(str).isin(recent)
     ]
 
-    if available.empty:
-        log("All products in cooldown → resetting cycle")
-        return products
-
-    return available
+    return available if not available.empty else products
 
 
-# ---------------- MAIN ENGINE ----------------
+# ---------------- MAIN ----------------
 
 def main():
     try:
+        if already_ran_today():
+            log("Already ran today. Skipping run.")
+            return
+
         check_secrets()
 
         products = load_products()
@@ -167,39 +184,45 @@ def main():
 
         available = get_available(products, memory)
 
+        if len(available) == 0:
+            raise Exception("No products available")
+
         selected = available.sample(1).iloc[0]
 
-        # ---------------- MAP SHOPIFY COLUMNS ----------------
+        # ---------------- SAFE FIELD HANDLING ----------------
 
-        title = selected.get("Title", "Amazing Product")
-        price = selected.get("Price", "")
+        title = str(selected.get("Title", "Amazing Product"))
+        price = str(selected.get("Price", "Contact for Price"))
+
+        if title.lower() == "nan":
+            title = "Amazing Product"
+
+        if price.lower() == "nan":
+            price = "Contact for Price"
+
         image_url = selected.get("Image Src")
         product_id = selected.get("SKU", str(selected.name))
 
         log(f"Selected product: {title} | {price}")
 
-        # ---------------- IMAGE DOWNLOAD ----------------
+        # ---------------- IMAGE ----------------
 
         image_path = download_image(image_url, product_id)
 
         if not image_path:
-            raise Exception("Image download failed (no valid image)")
+            raise Exception("Image download failed")
 
-        # ---------------- CAPTION ----------------
+        # ---------------- POST ----------------
 
         caption = generate_caption(title, price)
-
-        # ---------------- POST TO FACEBOOK ----------------
-
         result = post_to_facebook(image_path, caption)
 
         log(f"Posted successfully: {result}")
 
-        print("Posted Successfully:", result)
-
-        # ---------------- UPDATE MEMORY ----------------
-
         update_memory(product_id)
+        mark_run()
+
+        print("Posted Successfully:", result)
 
     except Exception as e:
         log(f"ERROR: {str(e)}")
