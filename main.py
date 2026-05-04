@@ -15,12 +15,48 @@ PAGE_ID = os.getenv("PAGE_ID")
 
 COOLDOWN_DAYS = 7
 
+import requests
 
+def post_to_facebook(image_path, caption):
+    url = f"https://graph.facebook.com/v18.0/{PAGE_ID}/photos"
+
+    with open(image_path, "rb") as img:
+        files = {
+            "source": img
+        }
+
+        data = {
+            "caption": caption,
+            "access_token": ACCESS_TOKEN
+        }
+
+        response = requests.post(url, files=files, data=data)
+
+    if response.status_code != 200:
+        raise Exception(f"Facebook पोस्ट failed: {response.text}")
+
+    return response.json()
 def log(msg):
     with open(LOG_FILE, "a") as f:
         f.write(f"{datetime.now()} - {msg}\n")
 
+def generate_caption(product):
+    title = product.get("title", "Amazing Product")
+    price = product.get("price", "")
+    
+    caption = f"""
+🔥 {title}
 
+💸 Price: {price}
+
+✅ Limited Time Offer
+🚚 Cash on Delivery Available
+
+📩 Order Now via Inbox!
+
+#Sale #Deal #Pakistan
+"""
+    return caption.strip()
 def check_secrets():
     if not ACCESS_TOKEN or not PAGE_ID:
         raise Exception("Missing required GitHub Secrets")
@@ -110,7 +146,6 @@ def main():
 
         available = get_available(products, memory)
 
-        # ✅ Priority-based selection
         selected = available.sample(
             1,
             weights=available["priority"]
@@ -118,17 +153,21 @@ def main():
 
         log(f"Selected product: {selected.to_dict()}")
 
-        # ✅ Static image usage
+        # ✅ Static image
         if not os.path.exists(IMAGE_PATH):
-            raise Exception("final_product.jpg not found in repo")
+            raise Exception("final_product.jpg not found")
 
         image_path = IMAGE_PATH
 
-        # (Future: Facebook upload will use image_path)
-        log(f"Using image: {image_path}")
+        # ✅ Generate caption
+        caption = generate_caption(selected)
 
-        print("Selected Product:")
-        print(selected)
+        # ✅ Post to Facebook
+        result = post_to_facebook(image_path, caption)
+
+        log(f"Posted to Facebook: {result}")
+
+        print("Posted Successfully:", result)
 
         update_memory(selected["product_id"])
 
