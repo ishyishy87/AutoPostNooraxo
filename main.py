@@ -45,19 +45,57 @@ def load_memory():
 def save_memory(df):
     df.to_csv(MEMORY_FILE, index=False)
 
+# ================= SELF-HEALING CSV ENGINE =================
+
+def normalize_columns(df):
+    df.columns = df.columns.str.strip().str.lower()
+    return df
+
+def map_columns(df):
+    mapping = {}
+
+    for col in df.columns:
+        if col in ["title", "product title", "name", "product_name"]:
+            mapping["title"] = col
+
+        elif col in ["price", "cost", "amount", "sale price"]:
+            mapping["price"] = col
+
+        elif col in ["sku", "id", "product id", "product_id"]:
+            mapping["sku"] = col
+
+        elif col in ["image src", "image", "image_url", "img", "photo"]:
+            mapping["image"] = col
+
+    return mapping
+
+def safe_get(row, col_map, key, default=""):
+    col = col_map.get(key)
+    if not col:
+        return default
+
+    value = row.get(col, default)
+
+    if pd.isna(value):
+        return default
+
+    return value
+
 # ================= AI SCORING =================
 
-def score_product(row):
+def score_product(row, col_map):
     score = 0
-    title = str(row.get("Title","")).lower()
 
-    if any(x in title for x in ["new","hot","sale","best"]):
+    title = str(safe_get(row, col_map, "title", "")).lower()
+
+    if any(x in title for x in ["new", "hot", "sale", "best"]):
         score += 10
-    if row.get("Image Src"):
+
+    if safe_get(row, col_map, "image"):
         score += 5
 
     try:
-        price = float(str(row.get("Price","0")).replace("$",""))
+        price = float(str(safe_get(row, col_map, "price", 0)).replace("$",""))
         if price < 50:
             score += 10
         elif price < 100:
@@ -82,7 +120,7 @@ def adjust_price(price, score):
 
     return round(p, 2)
 
-# ================= CAPTION =================
+# ================= CAPTION ENGINE =================
 
 def caption(title, price, score):
     if score > 70:
@@ -127,30 +165,53 @@ def post_to_facebook(image_path, caption_text):
 def download_image(url, pid):
     if not url:
         return None
+
     fn = f"temp_{pid}.jpg"
-    r = requests.get(url, stream=True)
-    with open(fn,"wb") as f:
-        for c in r.iter_content(1024):
-            f.write(c)
-    return fn
+
+    try:
+        r = requests.get(url, stream=True, timeout=10)
+        with open(fn,"wb") as f:
+            for c in r.iter_content(1024):
+                f.write(c)
+        return fn
+    except:
+        return None
+
+# ================= PRODUCT VALIDATION =================
+
+def validate_product(row, col_map):
+    required = ["title", "price", "sku"]
+    missing = []
+
+    for r in required:
+        if not safe_get(row, col_map, r):
+            missing.append(r)
+
+    return len(missing) == 0, missing
 
 # ================= PRODUCT SELECTION =================
 
-def select_product(df, memory):
+def select_product(df, memory, col_map):
+
     posted = set(memory["product_id"].astype(str))
 
-    available = df[~df["SKU"].astype(str).isin(posted)].copy()  # FIX 1
+    sku_col = col_map.get("sku")
+
+    if not sku_col:
+        return df.sample(1).iloc[0]
+
+    available = df[~df[sku_col].astype(str).isin(posted)].copy()
 
     if available.empty:
         available = df.copy()
 
-    available["score"] = available.apply(score_product, axis=1)
+    available["score"] = available.apply(lambda x: score_product(x, col_map), axis=1)
 
     top = available.sort_values("score", ascending=False).head(max(1, len(available)//3))
 
     return top.sample(1).iloc[0]
 
-# ================= MAIN =================
+# ================= MAIN ENGINE =================
 
 def main():
 
@@ -159,32 +220,40 @@ def main():
         return
 
     df = pd.read_csv(PRODUCTS_FILE)
-    df.columns = df.columns.str.strip()
+    df = normalize_columns(df)
 
     memory = load_memory()
 
-    product = select_product(df, memory)
+    col_map = map_columns(df)
 
-    pid = product["SKU"]
-    title = str(product["Title"])
-    price = product.get("Price","0")
-    img = product.get("Image Src")
+    product = select_product(df, memory, col_map)
 
-    score = score_product(product)
+    valid, missing = validate_product(product, col_map)
+
+    if not valid:
+        log(f"Skipped product due to missing fields: {missing}")
+        return
+
+    pid = safe_get(product, col_map, "sku")
+    title = safe_get(product, col_map, "title", "No Title")
+    price = safe_get(product, col_map, "price", 0)
+    img = safe_get(product, col_map, "image")
+
+    score = score_product(product, col_map)
     final_price = adjust_price(price, score)
 
     log(f"Selected {title} | Score {score}")
 
     img_file = download_image(img, pid)
     if not img_file:
-        log("No image")
+        log("Image download failed")
         return
 
     cap = caption(title, final_price, score) + "\n\n" + hashtags()
 
     result, post_url = post_to_facebook(img_file, cap)
 
-    # ================= FIX 2: replace append =================
+    # ================= SAFE MEMORY UPDATE =================
 
     new_row = pd.DataFrame([{
         "product_id": pid,
@@ -203,7 +272,7 @@ def main():
     save_memory(memory)
 
     mark_run()
-    log("Posted + learned")
+    log("Posted + learned successfully")
 
 if __name__ == "__main__":
     main()
