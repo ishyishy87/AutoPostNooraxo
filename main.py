@@ -3,6 +3,8 @@ import pandas as pd
 from datetime import datetime, timedelta
 import requests
 
+# ---------------- CONFIG ----------------
+
 PRODUCTS_FILE = "products.csv"
 MEMORY_FILE = "memory.csv"
 LOG_FILE = "run_log.txt"
@@ -11,10 +13,16 @@ ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 PAGE_ID = os.getenv("PAGE_ID")
 
 COOLDOWN_DAYS = 7
-FALLBACK_IMAGE = "fallback.jpg"  # optional local backup
 
 
-# ------------------ FACEBOOK POST ------------------
+# ---------------- LOGGING ----------------
+
+def log(msg):
+    with open(LOG_FILE, "a") as f:
+        f.write(f"{datetime.now()} - {msg}\n")
+
+
+# ---------------- FACEBOOK POST ----------------
 
 def post_to_facebook(image_path, caption):
     url = f"https://graph.facebook.com/v18.0/{PAGE_ID}/photos"
@@ -34,13 +42,16 @@ def post_to_facebook(image_path, caption):
     return response.json()
 
 
-# ------------------ IMAGE DOWNLOADER (NEW PRO FEATURE) ------------------
+# ---------------- IMAGE DOWNLOAD (PRO FEATURE) ----------------
 
 def download_image(url, product_id):
     try:
+        if not url or str(url).strip() == "":
+            return None
+
         filename = f"temp_{product_id}.jpg"
 
-        r = requests.get(url, stream=True, timeout=15)
+        r = requests.get(url, stream=True, timeout=20)
         r.raise_for_status()
 
         with open(filename, "wb") as f:
@@ -51,27 +62,13 @@ def download_image(url, product_id):
 
     except Exception as e:
         log(f"Image download failed: {url} | {str(e)}")
-
-        if os.path.exists(FALLBACK_IMAGE):
-            return FALLBACK_IMAGE
-
         return None
 
 
-# ------------------ LOGGING ------------------
+# ---------------- CAPTION ----------------
 
-def log(msg):
-    with open(LOG_FILE, "a") as f:
-        f.write(f"{datetime.now()} - {msg}\n")
-
-
-# ------------------ CAPTION GENERATOR ------------------
-
-def generate_caption(product):
-    title = product.get("title", "Amazing Product")
-    price = product.get("price", "")
-
-    caption = f"""
+def generate_caption(title, price):
+    return f"""
 🔥 {title}
 
 💸 Price: {price}
@@ -82,18 +79,17 @@ def generate_caption(product):
 📩 Order Now via Inbox!
 
 #Sale #Deal #Pakistan
-"""
-    return caption.strip()
+""".strip()
 
 
-# ------------------ SECRETS CHECK ------------------
+# ---------------- SECRETS CHECK ----------------
 
 def check_secrets():
     if not ACCESS_TOKEN or not PAGE_ID:
         raise Exception("Missing required GitHub Secrets")
 
 
-# ------------------ LOAD PRODUCTS ------------------
+# ---------------- LOAD PRODUCTS (SHOPIFY CSV SAFE) ----------------
 
 def load_products():
     if not os.path.exists(PRODUCTS_FILE):
@@ -101,16 +97,13 @@ def load_products():
 
     df = pd.read_csv(PRODUCTS_FILE)
 
-    if "product_id" not in df.columns:
-        df["product_id"] = df.index.astype(str)
-
-    if "priority" not in df.columns:
-        df["priority"] = 1
+    # clean headers (important for your CSV)
+    df.columns = df.columns.str.strip()
 
     return df
 
 
-# ------------------ MEMORY ------------------
+# ---------------- MEMORY ----------------
 
 def load_memory():
     if not os.path.exists(MEMORY_FILE):
@@ -139,7 +132,7 @@ def update_memory(product_id):
     df.to_csv(MEMORY_FILE, index=False)
 
 
-# ------------------ FILTER LOGIC ------------------
+# ---------------- SMART FILTER ----------------
 
 def get_available(products, memory):
     if memory.empty:
@@ -153,7 +146,7 @@ def get_available(products, memory):
     )
 
     available = products[
-        ~products["product_id"].astype(str).isin(recent)
+        ~products["SKU"].astype(str).isin(recent)
     ]
 
     if available.empty:
@@ -163,7 +156,7 @@ def get_available(products, memory):
     return available
 
 
-# ------------------ MAIN ENGINE ------------------
+# ---------------- MAIN ENGINE ----------------
 
 def main():
     try:
@@ -174,38 +167,39 @@ def main():
 
         available = get_available(products, memory)
 
-        selected = available.sample(
-            1,
-            weights=available["priority"]
-        ).iloc[0]
+        selected = available.sample(1).iloc[0]
 
-        log(f"Selected product: {selected.to_dict()}")
+        # ---------------- MAP SHOPIFY COLUMNS ----------------
 
-        # ------------------ IMAGE HANDLING (NEW PRO PART) ------------------
+        title = selected.get("Title", "Amazing Product")
+        price = selected.get("Price", "")
+        image_url = selected.get("Image Src")
+        product_id = selected.get("SKU", str(selected.name))
 
-        image_url = selected.get("image_url")
+        log(f"Selected product: {title} | {price}")
 
-        if not image_url:
-            raise Exception("No image_url found in CSV")
+        # ---------------- IMAGE DOWNLOAD ----------------
 
-        image_path = download_image(image_url, selected["product_id"])
+        image_path = download_image(image_url, product_id)
 
         if not image_path:
-            raise Exception("Image download failed and no fallback available")
+            raise Exception("Image download failed (no valid image)")
 
-        # ------------------ CAPTION ------------------
+        # ---------------- CAPTION ----------------
 
-        caption = generate_caption(selected)
+        caption = generate_caption(title, price)
 
-        # ------------------ POST ------------------
+        # ---------------- POST TO FACEBOOK ----------------
 
         result = post_to_facebook(image_path, caption)
 
-        log(f"Posted to Facebook: {result}")
+        log(f"Posted successfully: {result}")
 
         print("Posted Successfully:", result)
 
-        update_memory(selected["product_id"])
+        # ---------------- UPDATE MEMORY ----------------
+
+        update_memory(product_id)
 
     except Exception as e:
         log(f"ERROR: {str(e)}")
