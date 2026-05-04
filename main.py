@@ -2,7 +2,6 @@ import os
 import pandas as pd
 from datetime import datetime
 import requests
-import random
 
 # ================= CONFIG =================
 
@@ -46,7 +45,7 @@ def load_memory():
 def save_memory(df):
     df.to_csv(MEMORY_FILE, index=False)
 
-# ================= AI SCORING ENGINE =================
+# ================= AI SCORING =================
 
 def score_product(row):
     score = 0
@@ -77,13 +76,13 @@ def adjust_price(price, score):
         return price
 
     if score > 80:
-        p *= 0.95   # discount winner product
+        p *= 0.95
     elif score < 30:
-        p *= 1.05   # margin boost weak product
+        p *= 1.05
 
     return round(p, 2)
 
-# ================= CAPTION ENGINE =================
+# ================= CAPTION =================
 
 def caption(title, price, score):
     if score > 70:
@@ -102,8 +101,6 @@ def caption(title, price, score):
 🚚 Cash on Delivery Available
 📩 Order Now via Inbox
 """.strip()
-
-# ================= HASHTAGS =================
 
 def hashtags():
     return "#Sale #Pakistan #ShopNow #Deals #OnlineShopping"
@@ -137,24 +134,23 @@ def download_image(url, pid):
             f.write(c)
     return fn
 
-# ================= AUTONOMOUS DECISION ENGINE =================
+# ================= PRODUCT SELECTION =================
 
 def select_product(df, memory):
     posted = set(memory["product_id"].astype(str))
 
-    available = df[~df["SKU"].astype(str).isin(posted)]
+    available = df[~df["SKU"].astype(str).isin(posted)].copy()  # FIX 1
 
     if available.empty:
-        available = df
+        available = df.copy()
 
     available["score"] = available.apply(score_product, axis=1)
 
-    # AI decision: top 30% OR random elite
     top = available.sort_values("score", ascending=False).head(max(1, len(available)//3))
 
     return top.sample(1).iloc[0]
 
-# ================= MAIN AGENT =================
+# ================= MAIN =================
 
 def main():
 
@@ -188,9 +184,9 @@ def main():
 
     result, post_url = post_to_facebook(img_file, cap)
 
-    # ================= LEARNING UPDATE =================
+    # ================= FIX 2: replace append =================
 
-    memory = memory.append({
+    new_row = pd.DataFrame([{
         "product_id": pid,
         "status": "posted",
         "price": final_price,
@@ -200,7 +196,9 @@ def main():
         "shares": 0,
         "score": score,
         "date": str(datetime.now())
-    }, ignore_index=True)
+    }])
+
+    memory = pd.concat([memory, new_row], ignore_index=True)
 
     save_memory(memory)
 
