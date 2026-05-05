@@ -28,3 +28,7 @@
 2026-05-05 14:09:36.451631 - Found 4 images for product Pe-60-00-00-607
 2026-05-05 14:09:44.962588 - Uploaded images: 4
 2026-05-05 14:09:48.790576 - Posted + learned successfully
+2026-05-05 14:17:59.283823 - Selected 16 Colors Diamond Rose Crystal Touch Lamp | USB Rechargeable Bedside Lamp with Remote | Score 5
+2026-05-05 14:17:59.285247 - Found 7 images for product Vi-47-00-12-474
+2026-05-05 14:18:11.342871 - Uploaded images: 4
+2026-05-05 14:18:14.642265 - Posted + learned successfully
