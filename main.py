@@ -57,13 +57,10 @@ def map_columns(df):
     for col in df.columns:
         if col in ["title", "product title", "name", "product_name"]:
             mapping["title"] = col
-
         elif col in ["price", "cost", "amount", "sale price"]:
             mapping["price"] = col
-
         elif col in ["sku", "id", "product id", "product_id"]:
             mapping["sku"] = col
-
         elif col in ["image src", "image", "image_url", "img", "photo"]:
             mapping["image"] = col
 
@@ -75,7 +72,6 @@ def safe_get(row, col_map, key, default=""):
         return default
 
     value = row.get(col, default)
-
     if pd.isna(value):
         return default
 
@@ -85,7 +81,6 @@ def safe_get(row, col_map, key, default=""):
 
 def score_product(row, col_map):
     score = 0
-
     title = str(safe_get(row, col_map, "title", "")).lower()
 
     if any(x in title for x in ["new", "hot", "sale", "best"]):
@@ -219,7 +214,6 @@ def validate_product(row, col_map):
 def select_product(df, memory, col_map):
 
     posted = set(memory["product_id"].astype(str))
-
     sku_col = col_map.get("sku")
 
     if not sku_col:
@@ -236,7 +230,7 @@ def select_product(df, memory, col_map):
 
     return top.sample(1).iloc[0]
 
-# ================= MAIN ENGINE =================
+# ================= MAIN =================
 
 def main():
 
@@ -247,19 +241,21 @@ def main():
     df = pd.read_csv(PRODUCTS_FILE)
     df = normalize_columns(df)
 
-    memory = load_memory()
+    # clean SKU formatting
+    if "sku" in df.columns:
+        df["sku"] = df["sku"].astype(str).str.strip()
 
+    memory = load_memory()
     col_map = map_columns(df)
 
     product = select_product(df, memory, col_map)
 
     valid, missing = validate_product(product, col_map)
-
     if not valid:
         log(f"Skipped product due to missing fields: {missing}")
         return
 
-    pid = safe_get(product, col_map, "sku")
+    pid = str(safe_get(product, col_map, "sku")).strip()
     title = safe_get(product, col_map, "title", "No Title")
     price = safe_get(product, col_map, "price", 0)
     img = safe_get(product, col_map, "image")
@@ -269,28 +265,44 @@ def main():
 
     log(f"Selected {title} | Score {score}")
 
-    # ===== MULTI IMAGE FROM SHOPIFY CSV =====
+    # ===== IMAGE COLLECTION (FINAL FIX) =====
 
     image_files = []
-
-    sku_col = col_map.get("sku")
     image_col = col_map.get("image")
 
-    if sku_col and image_col:
+    handle_col = "url handle" if "url handle" in df.columns else None
 
-        product_rows = df[df[sku_col].astype(str) == str(pid)]
+    product_rows = pd.DataFrame()
 
-        if "image position" in df.columns:
-            product_rows = product_rows.sort_values(by="image position")
+    # Primary grouping (Shopify correct way)
+    if handle_col:
+        handle_value = product.get(handle_col)
+        product_rows = df[df[handle_col] == handle_value]
 
+    # Fallback grouping
+    if product_rows.empty and "sku" in df.columns:
+        product_rows = df[df["sku"] == pid]
+
+    # Sort by image position
+    if "image position" in df.columns:
+        product_rows = product_rows.sort_values(by="image position")
+
+    # Extract image URLs
+    if image_col:
         image_urls = product_rows[image_col].dropna().unique().tolist()
-
-        for i, url in enumerate(image_urls[:4]):
-            f = download_image(str(url).strip(), f"{pid}_{i}")
-            if f:
-                image_files.append(f)
-
     else:
+        image_urls = []
+
+    log(f"Found {len(image_urls)} images for product {pid}")
+
+    # Download images
+    for i, url in enumerate(image_urls[:4]):
+        f = download_image(str(url).strip(), f"{pid}_{i}")
+        if f:
+            image_files.append(f)
+
+    # fallback
+    if not image_files:
         f = download_image(img, pid)
         if f:
             image_files.append(f)
@@ -301,9 +313,10 @@ def main():
 
     cap = caption(title, final_price, score) + "\n\n" + hashtags()
 
-    # ===== CAROUSEL POST =====
+    # ===== POST =====
 
     image_ids = upload_images(image_files)
+    log(f"Uploaded images: {len(image_ids)}")
 
     if not image_ids:
         log("Image upload failed")
@@ -311,7 +324,7 @@ def main():
 
     result, post_url = post_carousel(image_ids, cap)
 
-    # ================= MEMORY UPDATE =================
+    # ===== MEMORY UPDATE =====
 
     new_row = pd.DataFrame([{
         "product_id": pid,
@@ -326,7 +339,6 @@ def main():
     }])
 
     memory = pd.concat([memory, new_row], ignore_index=True)
-
     save_memory(memory)
 
     mark_run()
