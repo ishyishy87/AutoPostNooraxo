@@ -143,18 +143,43 @@ def caption(title, price, score):
 def hashtags():
     return "#Sale #Pakistan #ShopNow #Deals #OnlineShopping"
 
-# ================= FACEBOOK POST =================
+# ================= FACEBOOK CAROUSEL =================
 
-def post_to_facebook(image_path, caption_text):
-    url = f"https://graph.facebook.com/v18.0/{PAGE_ID}/photos"
+def upload_images(image_paths):
+    uploaded_ids = []
 
-    with open(image_path,"rb") as img:
-        r = requests.post(url, files={"source":img}, data={
-            "caption": caption_text,
-            "access_token": ACCESS_TOKEN
-        })
+    for path in image_paths:
+        url = f"https://graph.facebook.com/v18.0/{PAGE_ID}/photos"
+
+        with open(path, "rb") as img:
+            r = requests.post(url, files={"source": img}, data={
+                "published": "false",
+                "access_token": ACCESS_TOKEN
+            })
+
+        data = r.json()
+
+        if "id" in data:
+            uploaded_ids.append(data["id"])
+        else:
+            log(f"Image upload failed: {data}")
+
+    return uploaded_ids
+
+
+def post_carousel(image_ids, caption_text):
+    url = f"https://graph.facebook.com/v18.0/{PAGE_ID}/feed"
+
+    attached_media = [{"media_fbid": img_id} for img_id in image_ids]
+
+    r = requests.post(url, json={
+        "message": caption_text,
+        "attached_media": attached_media,
+        "access_token": ACCESS_TOKEN
+    })
 
     data = r.json()
+
     post_id = data.get("id")
     post_url = f"https://facebook.com/{post_id}" if post_id else None
 
@@ -244,16 +269,49 @@ def main():
 
     log(f"Selected {title} | Score {score}")
 
-    img_file = download_image(img, pid)
-    if not img_file:
-        log("Image download failed")
+    # ===== MULTI IMAGE FROM SHOPIFY CSV =====
+
+    image_files = []
+
+    sku_col = col_map.get("sku")
+    image_col = col_map.get("image")
+
+    if sku_col and image_col:
+
+        product_rows = df[df[sku_col].astype(str) == str(pid)]
+
+        if "image position" in df.columns:
+            product_rows = product_rows.sort_values(by="image position")
+
+        image_urls = product_rows[image_col].dropna().unique().tolist()
+
+        for i, url in enumerate(image_urls[:4]):
+            f = download_image(str(url).strip(), f"{pid}_{i}")
+            if f:
+                image_files.append(f)
+
+    else:
+        f = download_image(img, pid)
+        if f:
+            image_files.append(f)
+
+    if not image_files:
+        log("No images downloaded")
         return
 
     cap = caption(title, final_price, score) + "\n\n" + hashtags()
 
-    result, post_url = post_to_facebook(img_file, cap)
+    # ===== CAROUSEL POST =====
 
-    # ================= SAFE MEMORY UPDATE =================
+    image_ids = upload_images(image_files)
+
+    if not image_ids:
+        log("Image upload failed")
+        return
+
+    result, post_url = post_carousel(image_ids, cap)
+
+    # ================= MEMORY UPDATE =================
 
     new_row = pd.DataFrame([{
         "product_id": pid,
