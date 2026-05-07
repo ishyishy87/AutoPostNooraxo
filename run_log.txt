@@ -64,3 +64,7 @@
 2026-05-07 14:06:28.204841 - Found 8 images
 2026-05-07 14:06:37.070554 - Uploaded images: 4
 2026-05-07 14:06:46.323003 - Posted successfully
+2026-05-07 19:42:49.465070 - Selected Face Wash | Chando Naturals Mint Cool Anti-Microbial Face Wash 100ml Daily Cleanser for Oily and Acne-Prone Skin | Score 5
+2026-05-07 19:42:49.466237 - Found 5 images
+2026-05-07 19:43:00.551768 - Uploaded images: 4
+2026-05-07 19:43:05.597570 - Posted successfully
