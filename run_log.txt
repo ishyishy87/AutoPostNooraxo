@@ -80,3 +80,7 @@
 2026-05-08 13:46:06.589998 - Found 6 images
 2026-05-08 13:46:20.022661 - Uploaded images: 4
 2026-05-08 13:46:25.502615 - Posted successfully
+2026-05-08 19:16:36.228887 - Selected Sheglam Complexion Pro Matte Foundation | Shell | Long Lasting | Score 5
+2026-05-08 19:16:36.230073 - Found 3 images
+2026-05-08 19:16:53.080836 - Uploaded images: 3
+2026-05-08 19:16:56.552182 - Posted successfully
