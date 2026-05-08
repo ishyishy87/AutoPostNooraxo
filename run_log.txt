@@ -76,3 +76,7 @@
 2026-05-08 07:29:28.826408 - Found 7 images
 2026-05-08 07:29:33.468695 - Uploaded images: 0
 2026-05-08 07:29:37.324080 - Posted successfully
+2026-05-08 13:46:06.588826 - Selected Pixi Glow Tonic Serum 30ml Lightweight Hydrating and Exfoliating Facial Serum with Glycolic Acid | Score 5
+2026-05-08 13:46:06.589998 - Found 6 images
+2026-05-08 13:46:20.022661 - Uploaded images: 4
+2026-05-08 13:46:25.502615 - Posted successfully
