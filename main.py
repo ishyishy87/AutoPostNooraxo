@@ -1,5 +1,7 @@
 import os
 import re
+import random
+import tempfile
 import pandas as pd
 from datetime import datetime
 import requests
@@ -9,7 +11,8 @@ import requests
 
 from moviepy.editor import (
     ImageClip,
-    concatenate_videoclips
+    concatenate_videoclips,
+    AudioFileClip
 )
 
 from PIL import Image, ImageDraw, ImageFont
@@ -196,6 +199,31 @@ def post_carousel(image_ids, caption_text):
     post_id = data.get("id")
     return data, f"https://facebook.com/{post_id}" if post_id else None
 
+def delete_facebook_object(object_id):
+    """
+    Rollback helper. Deletes a Facebook object if possible.
+    Used when carousel succeeds but reel upload fails.
+    """
+
+    if not object_id:
+        return False
+
+    url = f"https://graph.facebook.com/v18.0/{object_id}"
+
+    try:
+        r = requests.delete(url, data={
+            "access_token": ACCESS_TOKEN
+        })
+
+        data = r.json()
+        log(f"Rollback delete response for {object_id}: {data}")
+
+        return data.get("success") is True
+
+    except Exception as e:
+        log(f"Rollback delete failed for {object_id}: {e}")
+        return False
+
 # ================= IMAGE =================
 
 def download_image(url, pid):
@@ -291,31 +319,57 @@ def main():
         if f:
             image_files.append(f)
 
-    # ===== POST =====
+    log("Step 1 Completed: Product selected and images prepared")
+
+    # ===== POST CAPTION =====
 
     cap = caption(title, final_price, score) + "\n\n" + hashtags()
+
+    # ===== IMAGE UPLOAD =====
 
     image_ids = upload_images(image_files)
 
     log(f"Uploaded images: {len(image_ids)}")
 
-    result, post_url = post_carousel(image_ids, cap)
+    if not image_ids:
+        log("Failed: No images uploaded. Posting stopped.")
+        return
 
     # ===== REEL VIDEO CREATION =====
 
     reel_video_path = create_reel_video(image_files, title, final_price)
 
-    if reel_video_path:
+    if not reel_video_path:
+        log("Failed: Reel video creation failed. Posting stopped.")
+        return
 
-        log(f"Reel ready for upload: {reel_video_path}")
+    log("Step 2 Completed: Reel video created")
 
-        reel_caption = (
-            caption(title, final_price, score)
-            + "\n\n"
-            + REEL_HASHTAGS
-        )
+    # ===== FACEBOOK POST + REEL PUBLISH =====
 
-        upload_reel_video(reel_video_path, reel_caption)
+    result, post_url = post_carousel(image_ids, cap)
+    post_id = result.get("id") if result else None
+
+    if not post_id:
+        log(f"Failed: Facebook carousel post failed: {result}")
+        return
+
+    reel_caption = (
+        caption(title, final_price, score)
+        + "\n\n"
+        + REEL_HASHTAGS
+    )
+
+    reel_result = upload_reel_video(reel_video_path, reel_caption)
+    reel_id = reel_result.get("id") if reel_result else None
+
+    if not reel_id:
+        log(f"Failed: Reel upload failed: {reel_result}")
+        delete_facebook_object(post_id)
+        log("Rollback completed: Carousel post deleted because reel failed")
+        return
+
+    log("Step 3 Completed: Post & Reels published successfully")
         
     # ===== MEMORY =====
 
@@ -335,7 +389,7 @@ def main():
     save_memory(memory)
 
     mark_run()
-    log("Posted successfully")
+    log("Published successfully and memory updated")
 
 # ================= REELS VIDEO PROBLEM STATEMENT =================
 """
@@ -374,6 +428,61 @@ FONT_SIZE_PRICE = 85
 
 REEL_HASHTAGS = "#Reels #FacebookReels #ShopNow #Pakistan #OnlineShopping"
 
+# ================= ONLINE MUSIC CONFIG =================
+
+MUSIC_ENABLED = True
+
+# Add direct downloadable MP3 URLs only.
+# Use royalty-free/open-license tracks you are allowed to use commercially.
+OPEN_MUSIC_URLS = [
+    # Example:
+    # "https://your-direct-mp3-url/music1.mp3",
+    # "https://your-direct-mp3-url/music2.mp3",
+]
+
+
+# ================= RANDOM ONLINE MUSIC =================
+
+def download_random_music():
+    """
+    Download one random online MP3 from OPEN_MUSIC_URLS.
+    Returns local temp music path or None.
+    """
+
+    if not MUSIC_ENABLED:
+        log("Music skipped - disabled")
+        return None
+
+    if not OPEN_MUSIC_URLS:
+        log("Music skipped - no music URLs configured")
+        return None
+
+    music_url = random.choice(OPEN_MUSIC_URLS)
+    log(f"Selected online music: {music_url}")
+
+    try:
+        r = requests.get(music_url, stream=True, timeout=20)
+
+        if r.status_code != 200:
+            log(f"Music download failed: HTTP {r.status_code}")
+            return None
+
+        music_path = os.path.join(
+            tempfile.gettempdir(),
+            f"music_{datetime.now().strftime('%Y%m%d_%H%M%S')}.mp3"
+        )
+
+        with open(music_path, "wb") as f:
+            for chunk in r.iter_content(1024):
+                if chunk:
+                    f.write(chunk)
+
+        log(f"Music downloaded: {music_path}")
+        return music_path
+
+    except Exception as e:
+        log(f"Music download error: {e}")
+        return None
 
 # ================= REELS IMAGE PREPARATION =================
 
@@ -445,11 +554,30 @@ def create_reel_video(image_files, title, price):
         f"reel_{datetime.now().strftime('%Y%m%d_%H%M%S')}.mp4"
     )
 
+    # ===== BACKGROUND MUSIC =====
+
+    music_path = download_random_music()
+
+    if music_path:
+        try:
+            audio = AudioFileClip(music_path)
+
+            if audio.duration > video.duration:
+                audio = audio.subclip(0, video.duration)
+
+            video = video.set_audio(audio)
+            log("Music added to reel video")
+
+        except Exception as e:
+            log(f"Music attach failed: {e}")
+
+    # ===== EXPORT VIDEO =====
+
     video.write_videofile(
         output_path,
         fps=VIDEO_FPS,
         codec="libx264",
-        audio=False
+        audio_codec="aac"
     )
 
     log(f"Reel video created: {output_path}")
