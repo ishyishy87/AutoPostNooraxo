@@ -435,9 +435,22 @@ MUSIC_ENABLED = True
 # Add direct downloadable MP3 URLs only.
 # Use royalty-free/open-license tracks you are allowed to use commercially.
 OPEN_MUSIC_URLS = [
-    # Example:
-    # "https://your-direct-mp3-url/music1.mp3",
-    # "https://your-direct-mp3-url/music2.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3",
 ]
 
 
