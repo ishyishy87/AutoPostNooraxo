@@ -1,7 +1,7 @@
 pandas
 requests
 moviepy==1.0.3
-Pillow
+Pillow==9.5.0
 imageio
 imageio-ffmpeg
 numpy
