@@ -9,12 +9,10 @@ import requests
 
 from moviepy.editor import (
     ImageClip,
-    concatenate_videoclips,
-    CompositeVideoClip,
-    TextClip
+    concatenate_videoclips
 )
 
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 # ================= CONFIG =================
 
 PRODUCTS_FILE = "products.csv"
@@ -379,12 +377,7 @@ REEL_HASHTAGS = "#Reels #FacebookReels #ShopNow #Pakistan #OnlineShopping"
 
 # ================= REELS IMAGE PREPARATION =================
 
-def prepare_reel_image(image_path, output_size=VIDEO_SIZE):
-    """
-    Prepare product image for vertical reel format.
-    Existing image download/post logic remains unchanged.
-    """
-
+def prepare_reel_image(image_path, title="", price="", output_size=VIDEO_SIZE):
     img = Image.open(image_path).convert("RGB")
     img.thumbnail(output_size)
 
@@ -394,6 +387,21 @@ def prepare_reel_image(image_path, output_size=VIDEO_SIZE):
     y = (output_size[1] - img.height) // 2
 
     background.paste(img, (x, y))
+
+    draw = ImageDraw.Draw(background)
+
+    try:
+        title_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 60)
+        price_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 80)
+    except:
+        title_font = ImageFont.load_default()
+        price_font = ImageFont.load_default()
+
+    title_text = str(title)[:45]
+    price_text = f"Rs {price}"
+
+    draw.text((60, 100), title_text, fill=TEXT_COLOR, font=title_font)
+    draw.text((60, 1650), price_text, fill=TEXT_COLOR, font=price_font)
 
     prepared_path = f"reel_ready_{os.path.basename(image_path)}"
     background.save(prepared_path)
@@ -421,38 +429,14 @@ def create_reel_video(image_files, title, price):
     clips = []
 
     for img in image_files:
-        prepared_img = prepare_reel_image(img)
+        prepared_img = prepare_reel_image(img, title, price)
 
         clip = (
             ImageClip(prepared_img)
             .set_duration(IMAGE_DURATION)
-            .resize(VIDEO_SIZE)
         )
 
-        title_text = (
-            TextClip(
-                str(title),
-                fontsize=FONT_SIZE_TITLE,
-                color=TEXT_COLOR,
-                method="caption",
-                size=(950, None)
-            )
-            .set_position(("center", 120))
-            .set_duration(IMAGE_DURATION)
-        )
-
-        price_text = (
-            TextClip(
-                f"Rs {price}",
-                fontsize=FONT_SIZE_PRICE,
-                color=TEXT_COLOR
-            )
-            .set_position(("center", 1650))
-            .set_duration(IMAGE_DURATION)
-        )
-
-        final_clip = CompositeVideoClip([clip, title_text, price_text])
-        clips.append(final_clip)
+        clips.append(clip)
 
     video = concatenate_videoclips(clips, method="compose")
 
