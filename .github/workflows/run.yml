@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write   # ✅ THIS IS THE FIX
+  contents: write
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -18,14 +18,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          persist-credentials: true   # good practice
+          persist-credentials: true
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
           cache: "pip"
 
-      - run: pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip uninstall -y moviepy || true
+          pip install --no-cache-dir -r requirements.txt
+          python -c "from moviepy.editor import ImageClip; print('MoviePy OK')"
 
       - name: Run Script
         env:
@@ -37,6 +42,6 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          git add memory.csv run_log.txt || true
+          git add memory.csv run_log.txt run_lock.txt videos/ || true
           git commit -m "Auto update" || echo "No changes"
           git push
