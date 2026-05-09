@@ -96,3 +96,10 @@
 2026-05-09 08:33:24.778128 - Found 7 images
 2026-05-09 08:33:36.929659 - Uploaded images: 4
 2026-05-09 08:33:41.031159 - Posted successfully
+2026-05-09 11:44:56.531960 - Selected Havelyn Hair Food Oil 200ml | 7 Oils & 30+ Herbal Extracts for Strong & Healthy Hair | Score 5
+2026-05-09 11:44:56.533050 - Found 11 images
+2026-05-09 11:45:08.896705 - Uploaded images: 4
+2026-05-09 11:45:18.618886 - Reel video created: videos/reel_20260509_114513.mp4
+2026-05-09 11:45:18.618946 - Reel ready for upload: videos/reel_20260509_114513.mp4
+2026-05-09 11:45:26.261862 - Reel/video uploaded successfully: 981266461075445
+2026-05-09 11:45:26.265685 - Posted successfully
