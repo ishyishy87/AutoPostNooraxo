@@ -339,8 +339,6 @@ def main():
     mark_run()
     log("Posted successfully")
 
-if __name__ == "__main__":
-    main()
 # ================= REELS VIDEO PROBLEM STATEMENT =================
 """
 PROBLEM STATEMENT:
@@ -504,3 +502,6 @@ def upload_reel_video(video_path, caption_text):
         log(f"Reel/video upload failed: {data}")
 
     return data
+
+if __name__ == "__main__":
+    main()
