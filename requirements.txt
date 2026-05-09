@@ -1,2 +1,7 @@
 pandas
 requests
+moviepy
+Pillow
+imageio
+imageio-ffmpeg
+numpy
