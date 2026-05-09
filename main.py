@@ -4,6 +4,17 @@ import pandas as pd
 from datetime import datetime
 import requests
 
+
+# ================= VIDEO IMPORTS =================
+
+from moviepy.editor import (
+    ImageClip,
+    concatenate_videoclips,
+    CompositeVideoClip,
+    TextClip
+)
+
+from PIL import Image
 # ================= CONFIG =================
 
 PRODUCTS_FILE = "products.csv"
@@ -292,6 +303,22 @@ def main():
 
     result, post_url = post_carousel(image_ids, cap)
 
+    # ===== REEL VIDEO CREATION =====
+
+    reel_video_path = create_reel_video(image_files, title, final_price)
+
+    if reel_video_path:
+
+        log(f"Reel ready for upload: {reel_video_path}")
+
+        reel_caption = (
+            caption(title, final_price, score)
+            + "\n\n"
+            + REEL_HASHTAGS
+        )
+
+        upload_reel_video(reel_video_path, reel_caption)
+        
     # ===== MEMORY =====
 
     new_row = pd.DataFrame([{
@@ -314,3 +341,166 @@ def main():
 
 if __name__ == "__main__":
     main()
+# ================= REELS VIDEO PROBLEM STATEMENT =================
+"""
+PROBLEM STATEMENT:
+
+The current automation creates a Facebook carousel post using product images,
+caption, pricing logic, memory tracking, and daily run-lock safety.
+
+New requirement:
+After the existing Facebook post workflow is completed, generate a short
+vertical reel/video from the same selected product images and caption data.
+
+Important Constraints:
+1. Existing product selection logic must not be changed.
+2. Existing Facebook carousel posting logic must not be changed.
+3. Existing memory.csv and run_lock.txt behavior must not be changed.
+4. New reel/video functionality must be added as a separate block of code.
+5. The reel should use already downloaded product images.
+6. The reel should be suitable for Facebook/Instagram Reels format.
+7. The reel/video feature should be optional and safely callable after post creation.
+"""
+
+# ================= REELS VIDEO CONFIG =================
+
+REELS_ENABLED = True
+
+VIDEO_OUTPUT_DIR = "videos"
+VIDEO_SIZE = (1080, 1920)   # Vertical Reel format
+VIDEO_FPS = 24
+IMAGE_DURATION = 2.5        # seconds per image
+
+VIDEO_BG_COLOR = (0, 0, 0)
+TEXT_COLOR = "white"
+FONT_SIZE_TITLE = 70
+FONT_SIZE_PRICE = 85
+
+REEL_HASHTAGS = "#Reels #FacebookReels #ShopNow #Pakistan #OnlineShopping"
+
+
+# ================= REELS IMAGE PREPARATION =================
+
+def prepare_reel_image(image_path, output_size=VIDEO_SIZE):
+    """
+    Prepare product image for vertical reel format.
+    Existing image download/post logic remains unchanged.
+    """
+
+    img = Image.open(image_path).convert("RGB")
+    img.thumbnail(output_size)
+
+    background = Image.new("RGB", output_size, VIDEO_BG_COLOR)
+
+    x = (output_size[0] - img.width) // 2
+    y = (output_size[1] - img.height) // 2
+
+    background.paste(img, (x, y))
+
+    prepared_path = f"reel_ready_{os.path.basename(image_path)}"
+    background.save(prepared_path)
+
+    return prepared_path
+
+# ================= REELS VIDEO CREATION =================
+
+def create_reel_video(image_files, title, price):
+    """
+    Create vertical reel video from product images.
+    This function is separate and does not affect carousel posting.
+    """
+
+    if not REELS_ENABLED:
+        log("Reels video skipped - disabled")
+        return None
+
+    if not image_files:
+        log("Reels video skipped - no images found")
+        return None
+
+    os.makedirs(VIDEO_OUTPUT_DIR, exist_ok=True)
+
+    clips = []
+
+    for img in image_files:
+        prepared_img = prepare_reel_image(img)
+
+        clip = (
+            ImageClip(prepared_img)
+            .set_duration(IMAGE_DURATION)
+            .resize(VIDEO_SIZE)
+        )
+
+        title_text = (
+            TextClip(
+                str(title),
+                fontsize=FONT_SIZE_TITLE,
+                color=TEXT_COLOR,
+                method="caption",
+                size=(950, None)
+            )
+            .set_position(("center", 120))
+            .set_duration(IMAGE_DURATION)
+        )
+
+        price_text = (
+            TextClip(
+                f"Rs {price}",
+                fontsize=FONT_SIZE_PRICE,
+                color=TEXT_COLOR
+            )
+            .set_position(("center", 1650))
+            .set_duration(IMAGE_DURATION)
+        )
+
+        final_clip = CompositeVideoClip([clip, title_text, price_text])
+        clips.append(final_clip)
+
+    video = concatenate_videoclips(clips, method="compose")
+
+    output_path = os.path.join(
+        VIDEO_OUTPUT_DIR,
+        f"reel_{datetime.now().strftime('%Y%m%d_%H%M%S')}.mp4"
+    )
+
+    video.write_videofile(
+        output_path,
+        fps=VIDEO_FPS,
+        codec="libx264",
+        audio=False
+    )
+
+    log(f"Reel video created: {output_path}")
+
+    return output_path
+
+# ================= FACEBOOK REEL UPLOAD =================
+
+def upload_reel_video(video_path, caption_text):
+    """
+    Upload generated reel/video to Facebook.
+    This is separate from existing carousel post logic.
+    """
+
+    if not video_path or not os.path.exists(video_path):
+        log("Reel upload skipped - video file not found")
+        return None
+
+    url = f"https://graph.facebook.com/v18.0/{PAGE_ID}/videos"
+
+    with open(video_path, "rb") as video:
+        r = requests.post(url, files={
+            "source": video
+        }, data={
+            "description": caption_text,
+            "access_token": ACCESS_TOKEN
+        })
+
+    data = r.json()
+
+    if "id" in data:
+        log(f"Reel/video uploaded successfully: {data['id']}")
+    else:
+        log(f"Reel/video upload failed: {data}")
+
+    return data
