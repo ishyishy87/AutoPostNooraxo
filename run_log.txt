@@ -209,3 +209,17 @@
 2026-05-10 13:17:20.780351 - Reel/video uploaded successfully: 955584564067887
 2026-05-10 13:17:20.781350 - Step 4 Completed: Facebook post and reel published successfully
 2026-05-10 13:17:20.784233 - Step 5 Completed: Published successfully and memory updated
+2026-05-10 19:02:37.776410 - Selected Waterproof Bike Phone Holder 360° Rotation | Handlebar Mobile Mount for Bicycle & Motorcycle | Score 5 | AI Category auto
+2026-05-10 19:02:37.777654 - Found 6 images
+2026-05-10 19:02:42.561781 - Step 1 Completed: Product selected, AI category detected, and images prepared
+2026-05-10 19:02:42.562005 - Step 2 Completed: AI caption, CTA, and hashtags generated
+2026-05-10 19:02:51.548067 - Uploaded images: 4
+2026-05-10 19:02:51.842368 - Selected online music: https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3
+2026-05-10 19:02:54.013502 - Music downloaded: /tmp/music_20260510_190252_5006.mp3
+2026-05-10 19:02:54.029532 - Music added to reel video | audio_duration=10.0
+2026-05-10 19:02:59.225787 - Final reel has audio before upload
+2026-05-10 19:02:59.225840 - Reel video created: videos/reel_20260510_190251.mp4
+2026-05-10 19:02:59.225871 - Step 3 Completed: AI reel video created with generated overlays and random music
+2026-05-10 19:03:09.053444 - Reel/video uploaded successfully: 1481383219763498
+2026-05-10 19:03:09.054566 - Step 4 Completed: Facebook post and reel published successfully
+2026-05-10 19:03:09.057711 - Step 5 Completed: Published successfully and memory updated
