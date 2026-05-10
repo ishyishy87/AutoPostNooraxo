@@ -195,3 +195,17 @@
 2026-05-10 08:07:53.626918 - Reel/video uploaded successfully: 26669867292680552
 2026-05-10 08:07:53.628012 - Step 4 Completed: Facebook post and reel published successfully
 2026-05-10 08:07:53.630973 - Step 5 Completed: Published successfully and memory updated
+2026-05-10 13:16:54.028300 - Selected Gluta White Night Cream | Advanced Brightening & Anti-Aging Formula with Glutathione & Vitamins (50ml) | Score 5 | AI Category beauty
+2026-05-10 13:16:54.029383 - Found 3 images
+2026-05-10 13:16:57.001085 - Step 1 Completed: Product selected, AI category detected, and images prepared
+2026-05-10 13:16:57.001265 - Step 2 Completed: AI caption, CTA, and hashtags generated
+2026-05-10 13:17:01.741421 - Uploaded images: 3
+2026-05-10 13:17:01.958234 - Selected online music: https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3
+2026-05-10 13:17:04.046190 - Music downloaded: /tmp/music_20260510_131702_9307.mp3
+2026-05-10 13:17:04.061763 - Music added to reel video | audio_duration=7.5
+2026-05-10 13:17:07.983215 - Final reel has audio before upload
+2026-05-10 13:17:07.983268 - Reel video created: videos/reel_20260510_131701.mp4
+2026-05-10 13:17:07.983305 - Step 3 Completed: AI reel video created with generated overlays and random music
+2026-05-10 13:17:20.780351 - Reel/video uploaded successfully: 955584564067887
+2026-05-10 13:17:20.781350 - Step 4 Completed: Facebook post and reel published successfully
+2026-05-10 13:17:20.784233 - Step 5 Completed: Published successfully and memory updated
