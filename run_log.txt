@@ -223,3 +223,17 @@
 2026-05-10 19:03:09.053444 - Reel/video uploaded successfully: 1481383219763498
 2026-05-10 19:03:09.054566 - Step 4 Completed: Facebook post and reel published successfully
 2026-05-10 19:03:09.057711 - Step 5 Completed: Published successfully and memory updated
+2026-05-11 03:26:55.620725 - Selected Handy Stitch Portable Cordless Sewing Machine | Quick Fabric Repairs & Easy Stitching Tool | Score 5 | AI Category general
+2026-05-11 03:26:55.621830 - Found 5 images
+2026-05-11 03:26:59.927485 - Step 1 Completed: Product selected, AI category detected, and images prepared
+2026-05-11 03:26:59.927647 - Step 2 Completed: AI caption, CTA, and hashtags generated
+2026-05-11 03:27:08.044664 - Uploaded images: 4
+2026-05-11 03:27:08.327370 - Selected online music: https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3
+2026-05-11 03:27:10.528983 - Music downloaded: /tmp/music_20260511_032708_6832.mp3
+2026-05-11 03:27:10.543488 - Music added to reel video | audio_duration=10.0
+2026-05-11 03:27:15.666021 - Final reel has audio before upload
+2026-05-11 03:27:15.666070 - Reel video created: videos/reel_20260511_032708.mp4
+2026-05-11 03:27:15.666101 - Step 3 Completed: AI reel video created with generated overlays and random music
+2026-05-11 03:27:33.386744 - Reel/video uploaded successfully: 1644970413450584
+2026-05-11 03:27:33.387757 - Step 4 Completed: Facebook post and reel published successfully
+2026-05-11 03:27:33.390703 - Step 5 Completed: Published successfully and memory updated
