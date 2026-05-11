@@ -251,3 +251,17 @@
 2026-05-11 09:38:32.413305 - Reel/video uploaded successfully: 1298201875771607
 2026-05-11 09:38:32.414317 - Step 4 Completed: Facebook post and reel published successfully
 2026-05-11 09:38:32.417164 - Step 5 Completed: Published successfully and memory updated
+2026-05-11 14:48:55.912938 - Selected LED Disco Party Lights Crystal Magic Ball 3W RGB | Colorful Projection Lamp for Parties & Events | Score 5 | AI Category tech
+2026-05-11 14:48:55.914094 - Found 5 images
+2026-05-11 14:48:59.823297 - Step 1 Completed: Product selected, AI category detected, and images prepared
+2026-05-11 14:48:59.823514 - Step 2 Completed: AI caption, CTA, and hashtags generated
+2026-05-11 14:49:07.330149 - Uploaded images: 4
+2026-05-11 14:49:07.632587 - Selected online music: https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3
+2026-05-11 14:49:11.252601 - Music downloaded: /tmp/music_20260511_144908_1633.mp3
+2026-05-11 14:49:11.268714 - Music added to reel video | audio_duration=10.0
+2026-05-11 14:49:16.538038 - Final reel has audio before upload
+2026-05-11 14:49:16.538088 - Reel video created: videos/reel_20260511_144907.mp4
+2026-05-11 14:49:16.538119 - Step 3 Completed: AI reel video created with generated overlays and random music
+2026-05-11 14:49:28.390510 - Reel/video uploaded successfully: 1731779744916493
+2026-05-11 14:49:28.391553 - Step 4 Completed: Facebook post and reel published successfully
+2026-05-11 14:49:28.394637 - Step 5 Completed: Published successfully and memory updated
