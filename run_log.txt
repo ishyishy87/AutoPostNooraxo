@@ -237,3 +237,17 @@
 2026-05-11 03:27:33.386744 - Reel/video uploaded successfully: 1644970413450584
 2026-05-11 03:27:33.387757 - Step 4 Completed: Facebook post and reel published successfully
 2026-05-11 03:27:33.390703 - Step 5 Completed: Published successfully and memory updated
+2026-05-11 09:38:08.238176 - Selected Laptop Table | Brown Color | Foldable Legs, Tablet Groove & Cup Slot | Perfect for Working, Reading, Writing, and Eating | Score 5 | AI Category tech
+2026-05-11 09:38:08.239268 - Found 1 images
+2026-05-11 09:38:08.787750 - Step 1 Completed: Product selected, AI category detected, and images prepared
+2026-05-11 09:38:08.787940 - Step 2 Completed: AI caption, CTA, and hashtags generated
+2026-05-11 09:38:11.241909 - Uploaded images: 1
+2026-05-11 09:38:11.376184 - Selected online music: https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3
+2026-05-11 09:38:14.750828 - Music downloaded: /tmp/music_20260511_093812_6104.mp3
+2026-05-11 09:38:14.766097 - Music added to reel video | audio_duration=2.5
+2026-05-11 09:38:16.140663 - Final reel has audio before upload
+2026-05-11 09:38:16.140709 - Reel video created: videos/reel_20260511_093811.mp4
+2026-05-11 09:38:16.140738 - Step 3 Completed: AI reel video created with generated overlays and random music
+2026-05-11 09:38:32.413305 - Reel/video uploaded successfully: 1298201875771607
+2026-05-11 09:38:32.414317 - Step 4 Completed: Facebook post and reel published successfully
+2026-05-11 09:38:32.417164 - Step 5 Completed: Published successfully and memory updated
