@@ -279,3 +279,17 @@
 2026-05-12 02:33:09.386738 - Reel/video uploaded successfully: 1704755483989870
 2026-05-12 02:33:09.387759 - Step 4 Completed: Facebook post and reel published successfully
 2026-05-12 02:33:09.390669 - Step 5 Completed: Published successfully and memory updated
+2026-05-12 22:55:36.175981 - Selected Mutual Love Perfume for Women 50ml | Floral Fruity Long-Lasting Eau De Parfum | Score 5 | AI Category general
+2026-05-12 22:55:36.177197 - Found 7 images
+2026-05-12 22:55:40.691650 - Step 1 Completed: Product selected, AI category detected, and images prepared
+2026-05-12 22:55:40.691844 - Step 2 Completed: AI caption, CTA, and hashtags generated
+2026-05-12 22:55:47.663220 - Uploaded images: 4
+2026-05-12 22:55:47.952393 - Selected online music: https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3
+2026-05-12 22:55:49.880922 - Music downloaded: /tmp/music_20260512_225548_1963.mp3
+2026-05-12 22:55:49.896655 - Music added to reel video | audio_duration=10.0
+2026-05-12 22:55:54.723576 - Final reel has audio before upload
+2026-05-12 22:55:54.723635 - Reel video created: videos/reel_20260512_225547.mp4
+2026-05-12 22:55:54.723664 - Step 3 Completed: AI reel video created with generated overlays and random music
+2026-05-12 22:56:11.664245 - Reel/video uploaded successfully: 26683198058032361
+2026-05-12 22:56:11.665348 - Step 4 Completed: Facebook post and reel published successfully
+2026-05-12 22:56:11.668500 - Step 5 Completed: Published successfully and memory updated
