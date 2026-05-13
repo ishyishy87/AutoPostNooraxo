@@ -307,3 +307,17 @@
 2026-05-13 02:40:08.885983 - Reel/video uploaded successfully: 1273968231125000
 2026-05-13 02:40:08.886879 - Step 4 Completed: Facebook post and reel published successfully
 2026-05-13 02:40:08.889547 - Step 5 Completed: Published successfully and memory updated
+2026-05-13 23:01:47.018035 - Selected NSG F9 Auto On/Off Water Heating Rod 2500W | Smart Sensor, Waterproof, Shockproof, Fast Heating | Score 5 | AI Category general
+2026-05-13 23:01:47.019172 - Found 3 images
+2026-05-13 23:01:50.484701 - Step 1 Completed: Product selected, AI category detected, and images prepared
+2026-05-13 23:01:50.484889 - Step 2 Completed: AI caption, CTA, and hashtags generated
+2026-05-13 23:01:53.657145 - Uploaded images: 3
+2026-05-13 23:01:53.887024 - Selected online music: https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3
+2026-05-13 23:01:56.371401 - Music downloaded: /tmp/music_20260513_230154_9909.mp3
+2026-05-13 23:01:56.387356 - Music added to reel video | audio_duration=7.5
+2026-05-13 23:02:00.190615 - Final reel has audio before upload
+2026-05-13 23:02:00.190678 - Reel video created: videos/reel_20260513_230153.mp4
+2026-05-13 23:02:00.190716 - Step 3 Completed: AI reel video created with generated overlays and random music
+2026-05-13 23:02:10.158917 - Reel/video uploaded successfully: 1503620024476222
+2026-05-13 23:02:10.160018 - Step 4 Completed: Facebook post and reel published successfully
+2026-05-13 23:02:10.162950 - Step 5 Completed: Published successfully and memory updated
