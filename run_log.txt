@@ -335,3 +335,17 @@
 2026-05-15 02:40:56.482984 - Reel/video uploaded successfully: 3350680025093187
 2026-05-15 02:40:56.483996 - Step 4 Completed: Facebook post and reel published successfully
 2026-05-15 02:40:56.487158 - Step 5 Completed: Published successfully and memory updated
+2026-05-16 02:29:51.042358 - Selected 2-in-1 Scalp Root Hair Oil Applicator Comb | Hair Growth & Scalp Care Massage Tool | Score 5 | AI Category beauty
+2026-05-16 02:29:51.043460 - Found 4 images
+2026-05-16 02:30:01.624149 - Step 1 Completed: Product selected, AI category detected, and images prepared
+2026-05-16 02:30:01.624334 - Step 2 Completed: AI caption, CTA, and hashtags generated
+2026-05-16 02:30:10.022467 - Uploaded images: 4
+2026-05-16 02:30:10.313711 - Selected online music: https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3
+2026-05-16 02:30:13.408691 - Music downloaded: /tmp/music_20260516_023010_7618.mp3
+2026-05-16 02:30:13.459262 - Music added to reel video | audio_duration=10.0
+2026-05-16 02:30:20.806643 - Final reel has audio before upload
+2026-05-16 02:30:20.806693 - Reel video created: videos/reel_20260516_023010.mp4
+2026-05-16 02:30:20.806721 - Step 3 Completed: AI reel video created with generated overlays and random music
+2026-05-16 02:30:37.209748 - Reel/video uploaded successfully: 1700521211301211
+2026-05-16 02:30:37.210659 - Step 4 Completed: Facebook post and reel published successfully
+2026-05-16 02:30:37.213428 - Step 5 Completed: Published successfully and memory updated
